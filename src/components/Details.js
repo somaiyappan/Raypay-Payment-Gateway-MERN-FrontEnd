@@ -148,17 +148,37 @@ const [handleClose, sethandleClose] = useState(false)
 const [loading, setLoading] = useState(false);
 
 
+// const token = axios.get('http://localhost:3008/tokenAPI')
+// console.log(token)
+
+
+
+
+useEffect(() => {
+  axios.get('http://localhost:3008/tokenAPI').then((res) => {
+    var resdata = res.data.message
+   console.log(resdata)
+   localStorage.setItem("token", resdata);
+  })
+}, [])
+
+
+
 function loadRazorpay() {
+  
   console.log("loaf=dRazorPay")
   const script = document.createElement('script');
   script.src = 'https://checkout.razorpay.com/v1/checkout.js';
   script.onerror = () => {
     alert('Razorpay SDK failed to load. Are you online?');
   };
+  //localstoragetoken
+  let LocalStorageToken=localStorage.getItem("token")
   script.onload = async () => {
     try {
       setLoading(true);
-     const result = await axios.post('http://localhost:3008/create-order', { name: useSelectData.Name, email: useSelectData.Email, contact: useSelectData.PhoneNo, amount: useSelectData.Plan + '00', });
+
+     const result = await axios.post('http://localhost:3008/create-order', { name: useSelectData.Name, email: useSelectData.Email, contact: useSelectData.PhoneNo, amount: useSelectData.Plan + '00',token:LocalStorageToken });
       console.log("result "+JSON.stringify(result))
       const { amount, id: order_id, currency } = result.data;
       const { data: { key: razorpayKey }, } = await axios.get('http://localhost:3008/get-razorpay-key');
